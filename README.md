@@ -8,7 +8,6 @@
 
 | 项目 | 当前实现 |
 |---|---|
-| 项目入口 | [打开一键复制页面](https://jokerxiaomo.github.io/fanxiaofei-guofeng-script/) |
 | 宿主客户端 | FlClash 的 JavaScript 覆写功能 |
 | 覆写入口 | `function main(config)` |
 | 节点处理 | 动态分类香港/澳门、台湾、日本、新加坡、美国与其他节点 |
@@ -72,11 +71,15 @@
 
 ## 一分钟导入
 
-在 FlClash 中进入「配置 → 覆写脚本」，创建脚本后点击编辑器右上角的下载箭头，选择「导入 URL」，输入：
+在 FlClash 中进入「配置 → 覆写脚本」，创建脚本后点击编辑器右上角的下载箭头，选择「导入 URL」。
+
+> **复制提示：** GitHub 会为下方代码块提供内置的复制功能；在手机端请点击代码块后使用浏览器的“复制”操作。若代码块横向显示不完整，可点击下方的 Raw 链接打开完整地址后复制。
 
 ```text
 https://raw.githubusercontent.com/JokerXiaoMo/fanxiaofei-guofeng-script/main/ShanHaiXing.js
 ```
+
+[打开完整 Raw 链接](https://raw.githubusercontent.com/JokerXiaoMo/fanxiaofei-guofeng-script/main/ShanHaiXing.js)
 
 导入完成后，点击顶部的「未命名」并填写 `番小绯的国风脚本`，再点击保存。返回订阅卡片的「更多 → 覆写」，关联山海行脚本并刷新订阅。之后进入「代理」页，确认第一项为 `🌺 代理选择`，并检查 `🏮 香江灯影` 是否包含你的香港和澳门节点。
 
