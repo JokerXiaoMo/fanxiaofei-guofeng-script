@@ -8,6 +8,7 @@
 
 | 项目 | 当前实现 |
 |---|---|
+| 项目入口 | [打开一键复制页面](https://jokerxiaomo.github.io/fanxiaofei-guofeng-script/) |
 | 宿主客户端 | FlClash 的 JavaScript 覆写功能 |
 | 覆写入口 | `function main(config)` |
 | 节点处理 | 动态分类香港/澳门、台湾、日本、新加坡、美国与其他节点 |
@@ -117,7 +118,6 @@ https://raw.githubusercontent.com/JokerXiaoMo/fanxiaofei-guofeng-script/main/Sha
 | 贡献者 | 角色与贡献 |
 |---|---|
 | [JokerXiaoMo](https://github.com/JokerXiaoMo) | 项目发起与维护、功能方向与验收、原创角色**番小绯**及展示插画的权利人和授权人。 |
-| Manus | 在项目维护者指示下协助完成覆写脚本设计、测试夹具、国风文档、开源归因与仓库迁移。 |
 
 完整贡献者名单见 [`CONTRIBUTORS.md`](./CONTRIBUTORS.md)。上游项目的作者和维护者在「架构参考与开源致谢」中单独列出；他们是重要的上游致谢对象，但不是本仓库的直接提交贡献者。
 
