@@ -69,38 +69,17 @@
 
 > **请区分“测速机制可用”与“你的节点延迟”。** 本仓库已验证测试地址可返回 HTTP 204，也对脚本的 `url-test` 参数、节点分类与策略生成进行了夹具测试。但真实延迟仍取决于订阅节点、当地网络、运营商和设备；请以 FlClash 代理页中实际显示的节点延迟为准。
 
-## 自适应版：完整与缺失地区节点订阅
+## 一键复制订阅链接
 
-> **推荐新用户使用。** 自适应版保留原版的国风分流与完整地区候选能力，同时吸收兼容版的安全逻辑：业务策略组只引用**当前订阅实际生成**的地区组。因此，无论订阅包含全部地区节点，还是缺少新加坡、日本、美国等节点，都不会产生 `📜 灵枢智算: '🪷 南洋莲舟' not found` 一类错误。
+在 FlClash 中进入「配置 → 覆写脚本」，创建脚本后点击编辑器右上角的下载箭头，选择「导入 URL」。下方是当前唯一推荐的**山海行自适应版**；它会根据订阅中实际生成的地区组动态构建业务策略候选。
+
+> **复制提示：** GitHub 会为下方代码块提供内置的复制功能；在手机端请点击代码块后使用浏览器的“复制”操作。若代码块横向显示不完整，可点击下方的 Raw 链接打开完整地址后复制。
 
 ```text
 https://raw.githubusercontent.com/JokerXiaoMo/fanxiaofei-guofeng-script/main/ShanHaiXing-Adaptive.js
 ```
 
-自适应版使用独立文件名；请新建覆写脚本后导入，不会覆盖 `ShanHaiXing.js` 原版或 `ShanHaiXing-Compat.js` 兼容测试版。
-
-<details>
-<summary>兼容测试版地址</summary>
-
-仅用于复现和比对缺失地区节点订阅场景：
-
-```text
-https://raw.githubusercontent.com/JokerXiaoMo/fanxiaofei-guofeng-script/main/ShanHaiXing-Compat.js
-```
-
-</details>
-
-## 一分钟导入
-
-在 FlClash 中进入「配置 → 覆写脚本」，创建脚本后点击编辑器右上角的下载箭头，选择「导入 URL」。
-
-> **复制提示：** GitHub 会为下方代码块提供内置的复制功能；在手机端请点击代码块后使用浏览器的“复制”操作。若代码块横向显示不完整，可点击下方的 Raw 链接打开完整地址后复制。
-
-```text
-https://raw.githubusercontent.com/JokerXiaoMo/fanxiaofei-guofeng-script/main/ShanHaiXing.js
-```
-
-[打开完整 Raw 链接](https://raw.githubusercontent.com/JokerXiaoMo/fanxiaofei-guofeng-script/main/ShanHaiXing.js)
+[打开完整 Raw 链接](https://raw.githubusercontent.com/JokerXiaoMo/fanxiaofei-guofeng-script/main/ShanHaiXing-Adaptive.js)
 
 导入完成后，点击顶部的「未命名」并填写 `番小绯的国风脚本`，再点击保存。返回订阅卡片的「更多 → 覆写」，关联山海行脚本并刷新订阅。之后进入「代理」页，确认第一项为 `🌺 代理选择`，并检查 `🏮 香江灯影` 是否包含你的中国香港和中国澳门节点。
 
