@@ -69,15 +69,26 @@
 
 > **请区分“测速机制可用”与“你的节点延迟”。** 本仓库已验证测试地址可返回 HTTP 204，也对脚本的 `url-test` 参数、节点分类与策略生成进行了夹具测试。但真实延迟仍取决于订阅节点、当地网络、运营商和设备；请以 FlClash 代理页中实际显示的节点延迟为准。
 
-## 兼容测试版：缺失地区节点订阅
+## 自适应版：完整与缺失地区节点订阅
 
-> **原版保持不变。** 如果导入原版时出现类似 `📜 灵枢智算: '🪷 南洋莲舟' not found` 的报错，请单独测试以下兼容版。它只会把业务策略组的候选项限制为**当前订阅中已生成**的地区组，避免引用不存在的新加坡、日本、美国等地区策略组。
+> **推荐新用户使用。** 自适应版保留原版的国风分流与完整地区候选能力，同时吸收兼容版的安全逻辑：业务策略组只引用**当前订阅实际生成**的地区组。因此，无论订阅包含全部地区节点，还是缺少新加坡、日本、美国等节点，都不会产生 `📜 灵枢智算: '🪷 南洋莲舟' not found` 一类错误。
+
+```text
+https://raw.githubusercontent.com/JokerXiaoMo/fanxiaofei-guofeng-script/main/ShanHaiXing-Adaptive.js
+```
+
+自适应版使用独立文件名；请新建覆写脚本后导入，不会覆盖 `ShanHaiXing.js` 原版或 `ShanHaiXing-Compat.js` 兼容测试版。
+
+<details>
+<summary>兼容测试版地址</summary>
+
+仅用于复现和比对缺失地区节点订阅场景：
 
 ```text
 https://raw.githubusercontent.com/JokerXiaoMo/fanxiaofei-guofeng-script/main/ShanHaiXing-Compat.js
 ```
 
-兼容版与原版使用不同文件名；请新建覆写脚本后导入，不要覆盖现有原版配置。测试通过后，请把报错截图或代理组列表发回，以便决定后续方案。
+</details>
 
 ## 一分钟导入
 
