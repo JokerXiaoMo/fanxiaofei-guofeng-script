@@ -81,7 +81,7 @@ https://raw.githubusercontent.com/JokerXiaoMo/fanxiaofei-guofeng-script/main/Sha
 
 [打开完整 Raw 链接](https://raw.githubusercontent.com/JokerXiaoMo/fanxiaofei-guofeng-script/main/ShanHaiXing.js)
 
-导入完成后，点击顶部的「未命名」并填写 `番小绯的国风脚本`，再点击保存。返回订阅卡片的「更多 → 覆写」，关联山海行脚本并刷新订阅。之后进入「代理」页，确认第一项为 `🌺 代理选择`，并检查 `🏮 中国香港·中国澳门` 是否包含你的中国香港和中国澳门节点。
+导入完成后，点击顶部的「未命名」并填写 `番小绯的国风脚本`，再点击保存。返回订阅卡片的「更多 → 覆写」，关联山海行脚本并刷新订阅。之后进入「代理」页，确认第一项为 `🌺 代理选择`，并检查 `🏮 香江灯影` 是否包含你的中国香港和中国澳门节点。
 
 ## 快速验证
 
@@ -89,11 +89,11 @@ https://raw.githubusercontent.com/JokerXiaoMo/fanxiaofei-guofeng-script/main/Sha
 |---|---|
 | 覆写入口 | FlClash 成功保存并加载脚本，无 JavaScript 语法报错 |
 | 首页策略组 | `🌺 代理选择` 位于第一项 |
-| 中国澳门识别 | 名称包含 `中国澳门` 或中国澳门地区编号的节点出现在 `🏮 中国香港·中国澳门` |
+| 中国澳门识别 | 名称包含 `中国澳门` 或中国澳门地区编号的节点出现在 `🏮 香江灯影` |
 | 规则提供者 | 出现 `shanhai-ad`、`shanhai-cn`、`shanhai-global` 三项 |
 | AI 分流 | OpenAI/Claude 类服务命中 `📜 灵枢智算` |
 | 视频分流 | YouTube/Netflix 命中 `🎭 梨园影音` |
-| 延迟测试 | `🏮 中国香港·中国澳门` 内可看到中国香港/中国澳门节点的实际延迟 |
+| 延迟测试 | `🏮 香江灯影` 内可看到中国香港/中国澳门节点的实际延迟 |
 
 ## 架构参考与开源致谢
 
