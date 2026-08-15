@@ -1,9 +1,9 @@
-// FlClash 覆写脚本：山海行 · 自适应版
-// 适用：FlClash v0.8.85+（标准 Mihomo 内核）
+// Mihomo 覆写脚本：山海行 · 自适应版
+// 适用：FlClash v0.8.85+ 与支持 main(config) 的 BettBox 等 Mihomo 客户端
 // 设计：完整订阅保留全部地区候选；缺少地区节点时仅引用实际生成的策略组。
 // 说明：这是 IPv4/IPv6 双栈 DNS 正式版；历史版本保留在 archive/ 目录。
 
-var VERSION = '1.2.2-adaptive-dualstack-dns-media-integration'
+var VERSION = '1.2.4-adaptive-dualstack-dns-auto-media'
 var TEST_URL = 'https://www.gstatic.com/generate_204'
 var TEST_INTERVAL = 600
 var TEST_TOLERANCE = 50
@@ -27,6 +27,7 @@ var NAME = {
   OTHER: '⛰️ 四海云游',
   AI: '📜 灵枢智算',
   MEDIA: '🎭 梨园影音',
+  IMAGE: '🖼️ 影画速递',
   GOOGLE: '🔭 云台观星',
   DEV: '🧰 百工工坊',
   GLOBAL: '🗺️ 山海行旅',
@@ -34,6 +35,12 @@ var NAME = {
   FINAL: '🌺 桃源归途',
   AD: '🛡️ 清风拂尘'
 }
+
+var RESERVED_GROUP_NAMES = [
+  NAME.MAIN, NAME.ALL, NAME.HK, NAME.TW, NAME.JP, NAME.SG, NAME.US, NAME.OTHER,
+  NAME.AI, NAME.MEDIA, NAME.IMAGE, NAME.GOOGLE, NAME.DEV, NAME.GLOBAL,
+  NAME.CN, NAME.FINAL, NAME.AD
+]
 
 var REGIONS = [
   { key: 'HK', name: NAME.HK, pattern: /香港|澳门|澳門|hong\s?-?\s?kong|maca[ou]|\bhkg?\b|\bmo[\s_#-]*\d/i },
@@ -94,6 +101,10 @@ function detectRegion(nodeName) {
   return 'OTHER'
 }
 
+function isReservedGroupName(name) {
+  return RESERVED_GROUP_NAMES.indexOf(name) !== -1
+}
+
 function collectNodes(proxies) {
   var buckets = { ALL: [], HK: [], TW: [], JP: [], SG: [], US: [], OTHER: [] }
   for (var i = 0; i < proxies.length; i += 1) {
@@ -101,6 +112,11 @@ function collectNodes(proxies) {
     if (!proxy || typeof proxy !== 'object' || !proxy.name) continue
     var nodeName = String(proxy.name)
     if (INFO_NODE.test(nodeName)) continue
+    // Mihomo 禁止代理节点和策略组同名；跳过该罕见冲突节点，保障整份配置可加载。
+    if (isReservedGroupName(nodeName)) {
+      log('跳过与内置策略组重名的节点：' + nodeName)
+      continue
+    }
     buckets.ALL.push(nodeName)
     buckets[detectRegion(nodeName)].push(nodeName)
   }
@@ -148,12 +164,16 @@ function buildGroups(buckets) {
   if (buckets.OTHER.length > 0) groups.push(newUrlTest(NAME.OTHER, buckets.OTHER))
 
   var aiCandidates = availableRegionNames(buckets, ['US', 'SG', 'JP', 'ALL'])
-  // 梨园影音统一承载海外视频、图片、动图和社交媒体资源。
+  // 影音服务嵌套既有区域测速组，再以 url-test 自动选择最佳区域出口。
   var mediaCandidates = availableRegionNames(buckets, ['HK', 'TW', 'JP', 'US', 'SG', 'ALL'])
+  var imageNodes = unique(
+    buckets.JP.concat(buckets.SG, buckets.US, buckets.HK, buckets.TW, buckets.OTHER)
+  )
   var globalCandidates = availableRegionNames(buckets, ['US', 'JP', 'SG', 'ALL'])
 
   groups.push(newSelect(NAME.AI, selectCandidates(aiCandidates, false)))
-  groups.push(newSelect(NAME.MEDIA, selectCandidates(mediaCandidates, false)))
+  groups.push(newUrlTest(NAME.MEDIA, mediaCandidates))
+  groups.push(newUrlTest(NAME.IMAGE, imageNodes))
   groups.push(newSelect(NAME.GOOGLE, selectCandidates(globalCandidates, false)))
   groups.push(newSelect(NAME.DEV, selectCandidates(globalCandidates, false)))
   groups.push(newSelect(NAME.GLOBAL, selectCandidates(regions, false)))
@@ -197,23 +217,23 @@ function installRules(config) {
     'DOMAIN-SUFFIX,googlevideo.com,' + NAME.MEDIA,
     'DOMAIN-SUFFIX,netflix.com,' + NAME.MEDIA,
     'DOMAIN-SUFFIX,nflxvideo.net,' + NAME.MEDIA,
-    // 海外社交平台的图片、视频、动图与媒体 CDN 统一走梨园影音。
-    'DOMAIN-SUFFIX,instagram.com,' + NAME.MEDIA,
-    'DOMAIN-SUFFIX,cdninstagram.com,' + NAME.MEDIA,
-    'DOMAIN-SUFFIX,fbcdn.net,' + NAME.MEDIA,
-    'DOMAIN-SUFFIX,pixiv.net,' + NAME.MEDIA,
-    'DOMAIN-SUFFIX,pximg.net,' + NAME.MEDIA,
-    'DOMAIN-SUFFIX,pixivision.net,' + NAME.MEDIA,
-    'DOMAIN-SUFFIX,pixivsketch.net,' + NAME.MEDIA,
-    'DOMAIN-SUFFIX,telegram.org,' + NAME.MEDIA,
-    'DOMAIN-SUFFIX,t.me,' + NAME.MEDIA,
-    'DOMAIN-SUFFIX,telegram.me,' + NAME.MEDIA,
-    'DOMAIN-SUFFIX,telegra.ph,' + NAME.MEDIA,
-    'DOMAIN-SUFFIX,telesco.pe,' + NAME.MEDIA,
-    'DOMAIN-SUFFIX,telegram-cdn.org,' + NAME.MEDIA,
-    'DOMAIN-SUFFIX,x.com,' + NAME.MEDIA,
-    'DOMAIN-SUFFIX,twitter.com,' + NAME.MEDIA,
-    'DOMAIN-SUFFIX,twimg.com,' + NAME.MEDIA,
+    // 海外社交平台的图片、视频、动图与媒体 CDN 交由独立测速组自动选择节点。
+    'DOMAIN-SUFFIX,instagram.com,' + NAME.IMAGE,
+    'DOMAIN-SUFFIX,cdninstagram.com,' + NAME.IMAGE,
+    'DOMAIN-SUFFIX,fbcdn.net,' + NAME.IMAGE,
+    'DOMAIN-SUFFIX,pixiv.net,' + NAME.IMAGE,
+    'DOMAIN-SUFFIX,pximg.net,' + NAME.IMAGE,
+    'DOMAIN-SUFFIX,pixivision.net,' + NAME.IMAGE,
+    'DOMAIN-SUFFIX,pixivsketch.net,' + NAME.IMAGE,
+    'DOMAIN-SUFFIX,telegram.org,' + NAME.IMAGE,
+    'DOMAIN-SUFFIX,t.me,' + NAME.IMAGE,
+    'DOMAIN-SUFFIX,telegram.me,' + NAME.IMAGE,
+    'DOMAIN-SUFFIX,telegra.ph,' + NAME.IMAGE,
+    'DOMAIN-SUFFIX,telesco.pe,' + NAME.IMAGE,
+    'DOMAIN-SUFFIX,telegram-cdn.org,' + NAME.IMAGE,
+    'DOMAIN-SUFFIX,x.com,' + NAME.IMAGE,
+    'DOMAIN-SUFFIX,twitter.com,' + NAME.IMAGE,
+    'DOMAIN-SUFFIX,twimg.com,' + NAME.IMAGE,
     'DOMAIN-SUFFIX,google.com,' + NAME.GOOGLE,
     'DOMAIN-SUFFIX,googleapis.com,' + NAME.GOOGLE,
     'DOMAIN-SUFFIX,gstatic.com,' + NAME.GOOGLE,
@@ -289,4 +309,4 @@ function main(config) {
   }
 }
 
-// FlClash 以 main(config) 作为覆写脚本入口。
+// FlClash、BettBox 等兼容客户端以 main(config) 作为覆写脚本入口。

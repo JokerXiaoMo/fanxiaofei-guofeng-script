@@ -11,7 +11,7 @@
 | 宿主客户端 | FlClash 与 BettBox 的 JavaScript 覆写功能 |
 | 覆写入口 | `function main(config)` |
 | 节点处理 | 动态分类中国香港/中国澳门、中国台湾、日本、新加坡、美国与其他节点 |
-| 策略组布局 | `🌺 代理选择` 固定置顶，随后是区域测速组与业务策略组 |
+| 策略组布局 | `🌺 代理选择` 固定置顶，随后是区域测速组与自动/手动业务策略组 |
 | 远程规则 | AdvertisingLite、ChinaMax、Global 三份 Clash Classical 规则 |
 | 测速方式 | `url-test`，每 600 秒复测，50 ms 容差，按需测速 |
 | DNS 能力 | 正式版启用 IPv4/IPv6 双栈 DNS、IPv6 Fake IP 范围与 DNS 上游回退 |
@@ -27,7 +27,7 @@
 
 ## 国风名称与实际功能对照
 
-下面的表格是本项目最重要的阅读入口。导入后，在 FlClash 的「代理」页看到的每个名称都可以按此表理解。
+下面的表格是本项目最重要的阅读入口。导入后，在 FlClash 或 BettBox 的「代理」页看到的每个名称都可以按此表理解。
 
 | 策略组 | 实际功能 | 节点或服务范围 | 工作方式 |
 |---|---|---|---|
@@ -40,7 +40,8 @@
 | `⛵ 北美远航` | 美国节点测速池 | 美国、洛杉矶、西雅图、纽约、USA、US 等命名 | `url-test` 自动择优 |
 | `⛰️ 四海云游` | 未识别地区节点池 | 不能被上述地区规则识别的有效节点 | `url-test` 自动择优 |
 | `📜 灵枢智算` | AI 服务策略 | ChatGPT、OpenAI、Claude、Anthropic、Google Generative Language | 手动选择，优先提供美/新/日/全节点 |
-| `🎭 梨园影音` | 海外影音与社交媒体策略 | YouTube、Google Video、Netflix、Instagram/Meta CDN、Pixiv/pximg、Telegram 网页与 CDN、X/Twitter/twimg | 手动选择，优先提供港/台/日/美/新/全节点；统一承载图片、视频、动图与同域名媒体资源 |
+| `🎭 梨园影音` | 海外视频服务自动策略 | YouTube、Google Video、Netflix、Netflix Video | `url-test` 自动在中国香港、中国台湾、日本、美国、新加坡及全节点区域组间择优；无需用户手动切换 |
+| `🖼️ 影画速递` | 海外图片与社交媒体自动策略 | Instagram/Meta CDN、Pixiv/pximg、Telegram 网页与 CDN、X/Twitter/twimg | `url-test` 直接测试订阅内有效节点，自动选择适合图片、动图和视频媒体的出口；不与梨园影音重复接管域名 |
 | `🔭 云台观星` | Google 服务策略 | Google、Google APIs、GStatic | 手动选择，优先提供美/日/新/全节点 |
 | `🧰 百工工坊` | 开发者服务策略 | GitHub、GitHub User Content、GitHub Assets、GitLab | 手动选择，优先提供美/日/新/全节点 |
 | `🗺️ 山海行旅` | 通用海外服务策略 | Global 规则集中命中的常用海外站点 | 手动选择，默认按区域组选择 |
@@ -57,16 +58,17 @@
 | 1 | 局域网与本地域名/IP | `DIRECT` |
 | 2 | AdvertisingLite | `🛡️ 清风拂尘` |
 | 3 | OpenAI、ChatGPT、Claude、Anthropic、Google AI | `📜 灵枢智算` |
-| 4 | YouTube、Netflix、Instagram、Pixiv、Telegram、X 及其图片/媒体域名 | `🎭 梨园影音` |
-| 5 | Google 域名与 API | `🔭 云台观星` |
-| 6 | GitHub、GitLab 等开发平台 | `🧰 百工工坊` |
-| 7 | ChinaMax 与中国大陆 IP | `🧧 神州直连` |
-| 8 | Global 规则集 | `🗺️ 山海行旅` |
-| 9 | 未命中流量 | `🌺 桃源归途` |
+| 4 | YouTube、Netflix 及其视频媒体域名 | `🎭 梨园影音` |
+| 5 | Instagram、Pixiv、Telegram、X 及其图片/媒体域名 | `🖼️ 影画速递` |
+| 6 | Google 域名与 API | `🔭 云台观星` |
+| 7 | GitHub、GitLab 等开发平台 | `🧰 百工工坊` |
+| 8 | ChinaMax 与中国大陆 IP | `🧧 神州直连` |
+| 9 | Global 规则集 | `🗺️ 山海行旅` |
+| 10 | 未命中流量 | `🌺 桃源归途` |
 
 ## 节点测速与延迟表现
 
-区域组采用 Mihomo 的 `url-test`。测试地址为 `https://www.gstatic.com/generate_204`，脚本设置 `interval: 600`、`tolerance: 50`、`lazy: true`。这意味着每个区域节点池会在实际需要时开始测试，并定期复测；延迟较优且可用的节点会成为自动选择的候选。
+区域组采用 Mihomo 的 `url-test`。测试地址为 `https://www.gstatic.com/generate_204`，脚本设置 `interval: 600`、`tolerance: 50`、`lazy: true`。这意味着每个区域节点池会在实际需要时开始测试，并定期复测；延迟较优且可用的节点会成为自动选择的候选。`🎭 梨园影音` 会在已经生成的区域测速组之间自动择优，`🖼️ 影画速递` 则直接测试其覆盖的有效节点；二者均不要求客户手动切换。
 
 > **请区分“测速机制可用”与“你的节点延迟”。** 本仓库已验证测试地址可返回 HTTP 204，也对脚本的 `url-test` 参数、节点分类与策略生成进行了夹具测试。但真实延迟仍取决于订阅节点、当地网络、运营商和设备；请以 FlClash 代理页中实际显示的节点延迟为准。
 
@@ -93,7 +95,8 @@ https://raw.githubusercontent.com/JokerXiaoMo/fanxiaofei-guofeng-script/main/Sha
 | 中国澳门识别 | 名称包含 `中国澳门` 或中国澳门地区编号的节点出现在 `🏮 香江灯影` |
 | 规则提供者 | 出现 `shanhai-ad`、`shanhai-cn`、`shanhai-global` 三项 |
 | AI 分流 | OpenAI/Claude 类服务命中 `📜 灵枢智算` |
-| 影音与社交媒体分流 | YouTube、Netflix、Instagram、Pixiv、Telegram、X 相关域名均命中 `🎭 梨园影音` |
+| 影音自动分流 | YouTube、Netflix 命中 `🎭 梨园影音`，且该组以 `url-test` 自动择优区域出口 |
+| 影画自动分流 | Instagram、Pixiv、Telegram、X 相关域名命中 `🖼️ 影画速递`，且该组以 `url-test` 自动测试有效节点 |
 | 延迟测试 | `🏮 香江灯影` 内可看到中国香港/中国澳门节点的实际延迟 |
 
 ## 架构参考与开源致谢
@@ -103,6 +106,7 @@ https://raw.githubusercontent.com/JokerXiaoMo/fanxiaofei-guofeng-script/main/Sha
 | 开源项目 | 山海行如何使用或参考 | 归因边界 |
 |---|---|---|
 | [FlClash](https://github.com/chen08209/FlClash) | 作为跨平台 Mihomo 客户端与 JavaScript 覆写脚本的运行宿主 | 不包含、复制或修改 FlClash 源码；其仓库采用 GPL-3.0。[1] |
+| [BettBox](https://github.com/appshubcc/Bettbox) | 作为另一个已核验的 Mihomo JavaScript 覆写宿主 | 不包含、复制或修改 BettBox 源码；其仓库采用 GPL-3.0。[5] |
 | [ios_rule_script](https://github.com/blackmatrix7/ios_rule_script) | 运行时从公开 URL 请求 AdvertisingLite、ChinaMax、Global 三份 Classical 规则 | 不打包、不再分发上游规则文件；使用前请阅读上游 GPL-2.0 许可及项目声明。[2] |
 | [Smart-Config-Kit](https://github.com/IvanSolis1989/Smart-Config-Kit) | 参考“动态节点分类、区域测速组、业务策略组、规则提供者”的功能分层思路 | 未复制其代码或规则清单；GitHub 当前未显示许可证信息，故只作架构性致谢。[3] |
 | [Mihomo](https://github.com/MetaCubeX/mihomo) | 为 `proxy-groups`、`url-test`、`rule-providers` 等配置语义提供内核背景 | 不作为山海行的代码或规则直接来源。[4] |
@@ -127,7 +131,7 @@ https://raw.githubusercontent.com/JokerXiaoMo/fanxiaofei-guofeng-script/main/Sha
 
 ## 贡献与反馈
 
-欢迎提交节点命名兼容性、规则误分流、文档改进与测试用例。提交问题时，请提供脱敏后的节点名称、命中的策略组、预期策略组和 FlClash 版本；不要公开订阅链接、节点地址、令牌或个人信息。
+欢迎提交节点命名兼容性、规则误分流、文档改进与测试用例。提交问题时，请提供脱敏后的节点名称、命中的策略组、预期策略组以及 FlClash 或 BettBox 版本；不要公开订阅链接、节点地址、令牌或个人信息。
 
 ## References
 
@@ -135,3 +139,4 @@ https://raw.githubusercontent.com/JokerXiaoMo/fanxiaofei-guofeng-script/main/Sha
 [2]: https://github.com/blackmatrix7/ios_rule_script "blackmatrix7/ios_rule_script"
 [3]: https://github.com/IvanSolis1989/Smart-Config-Kit "Smart-Config-Kit"
 [4]: https://github.com/MetaCubeX/mihomo "Mihomo"
+[5]: https://github.com/appshubcc/Bettbox "BettBox"
