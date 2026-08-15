@@ -6,14 +6,14 @@ const vm = require('node:vm')
 const source = fs.readFileSync(path.join(__dirname, '..', 'ShanHaiXing-Adaptive-DualStackDNS.js'), 'utf8')
 const nodes = [{ name: '🇭🇰 中国香港 01' }, { name: 'US Los Angeles 02' }]
 
-function runWithDns(dns) {
+function runWithDns(dns, inputNodes = nodes) {
   const sandbox = { console: { log() {} } }
   vm.createContext(sandbox)
   vm.runInContext(source, sandbox, { filename: 'ShanHaiXing-Adaptive-DualStackDNS.js' })
   assert.equal(typeof sandbox.main, 'function', '双栈 DNS 版必须保留 main(config) 覆写入口')
 
   const config = {
-    proxies: nodes.map((node) => ({ ...node })),
+    proxies: inputNodes.map((node) => ({ ...node })),
     'proxy-groups': [],
     rules: ['MATCH,DIRECT']
   }
@@ -35,6 +35,29 @@ assert.deepEqual([...defaults.dns['proxy-server-nameserver']], ['https://doh.pub
 assert.deepEqual([...defaults.dns.nameserver], ['https://dns.google/dns-query', 'https://dns.cloudflare.com/dns-query'])
 assert.equal(defaults.dns['respect-rules'], true, '补齐代理域名服务器后必须允许 DNS 遵守规则')
 
+const imageGroup = defaults['proxy-groups'].find((group) => group.name === '🖼️ 影画速递')
+assert.ok(imageGroup, '必须生成影画速递策略组')
+assert.deepEqual([...imageGroup.proxies], ['⛵ 北美远航', '🏮 香江灯影', '☁️ 万象节点', 'DIRECT'], '影画速递只能引用已生成地区组并保留全节点兜底')
+
+const expectedImageRules = [
+  'DOMAIN-SUFFIX,instagram.com,🖼️ 影画速递',
+  'DOMAIN-SUFFIX,cdninstagram.com,🖼️ 影画速递',
+  'DOMAIN-SUFFIX,pximg.net,🖼️ 影画速递',
+  'DOMAIN-SUFFIX,telegram.org,🖼️ 影画速递',
+  'DOMAIN-SUFFIX,telegram-cdn.org,🖼️ 影画速递',
+  'DOMAIN-SUFFIX,x.com,🖼️ 影画速递',
+  'DOMAIN-SUFFIX,twimg.com,🖼️ 影画速递'
+]
+for (const rule of expectedImageRules) {
+  assert.ok(defaults.rules.includes(rule), '必须包含影画速递规则：' + rule)
+}
+
+// 仅有日本节点时，影画速递不可引用未创建的中国香港、新加坡或美国策略组。
+const sparse = runWithDns(undefined, [{ name: '日本 东京 01' }])
+const sparseImageGroup = sparse['proxy-groups'].find((group) => group.name === '🖼️ 影画速递')
+assert.ok(sparseImageGroup, '缺失地区节点时也必须保留影画速递策略组')
+assert.deepEqual([...sparseImageGroup.proxies], ['🍑 东海桃影', '☁️ 万象节点', 'DIRECT'], '缺失地区节点时只能引用存在的日区和全节点策略组')
+
 // 用户已有私有 DNS 时不可覆盖其上游，只补齐 IPv6 与缺失的假 IP v6 范围。
 const existing = runWithDns({
   enable: true,
@@ -53,4 +76,4 @@ assert.equal(existing.dns['fake-ip-range'], '198.19.0.1/16', '不得覆盖已有
 assert.equal(existing.dns['fake-ip-range6'], 'fdfe:dcba:9876::1/64', '缺失时必须补齐 IPv6 假 IP 范围')
 assert.equal(existing.dns['respect-rules'], true, '已有代理域名服务器时可安全开启 respect-rules')
 
-console.log('ShanHaiXing adaptive dual-stack DNS tests passed')
+console.log('ShanHaiXing adaptive dual-stack DNS and image routing tests passed')

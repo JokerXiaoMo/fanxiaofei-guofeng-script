@@ -1,9 +1,9 @@
 // FlClash 覆写脚本：山海行 · 自适应版
 // 适用：FlClash v0.8.85+（标准 Mihomo 内核）
 // 设计：完整订阅保留全部地区候选；缺少地区节点时仅引用实际生成的策略组。
-// 说明：这是 IPv4/IPv6 双栈 DNS 测试版；不覆盖现有自适应正式版或历史归档。
+// 说明：这是 IPv4/IPv6 双栈 DNS 正式版；历史版本保留在 archive/ 目录。
 
-var VERSION = '1.2.0-adaptive-dualstack-dns'
+var VERSION = '1.2.1-adaptive-dualstack-dns-image-routing'
 var TEST_URL = 'https://www.gstatic.com/generate_204'
 var TEST_INTERVAL = 600
 var TEST_TOLERANCE = 50
@@ -27,6 +27,7 @@ var NAME = {
   OTHER: '⛰️ 四海云游',
   AI: '📜 灵枢智算',
   MEDIA: '🎭 梨园影音',
+  IMAGE: '🖼️ 影画速递',
   GOOGLE: '🔭 云台观星',
   DEV: '🧰 百工工坊',
   GLOBAL: '🗺️ 山海行旅',
@@ -149,10 +150,13 @@ function buildGroups(buckets) {
 
   var aiCandidates = availableRegionNames(buckets, ['US', 'SG', 'JP', 'ALL'])
   var mediaCandidates = availableRegionNames(buckets, ['HK', 'TW', 'JP', 'US', 'SG', 'ALL'])
+  // 图片和媒体平台优先日、新、美节点；平台内容授权或实时 CDN 仍由其自身控制。
+  var imageCandidates = availableRegionNames(buckets, ['JP', 'SG', 'US', 'HK', 'TW', 'ALL'])
   var globalCandidates = availableRegionNames(buckets, ['US', 'JP', 'SG', 'ALL'])
 
   groups.push(newSelect(NAME.AI, selectCandidates(aiCandidates, false)))
   groups.push(newSelect(NAME.MEDIA, selectCandidates(mediaCandidates, false)))
+  groups.push(newSelect(NAME.IMAGE, selectCandidates(imageCandidates, false)))
   groups.push(newSelect(NAME.GOOGLE, selectCandidates(globalCandidates, false)))
   groups.push(newSelect(NAME.DEV, selectCandidates(globalCandidates, false)))
   groups.push(newSelect(NAME.GLOBAL, selectCandidates(regions, false)))
@@ -196,6 +200,26 @@ function installRules(config) {
     'DOMAIN-SUFFIX,googlevideo.com,' + NAME.MEDIA,
     'DOMAIN-SUFFIX,netflix.com,' + NAME.MEDIA,
     'DOMAIN-SUFFIX,nflxvideo.net,' + NAME.MEDIA,
+    // Instagram / Meta 图片与媒体。
+    'DOMAIN-SUFFIX,instagram.com,' + NAME.IMAGE,
+    'DOMAIN-SUFFIX,cdninstagram.com,' + NAME.IMAGE,
+    'DOMAIN-SUFFIX,fbcdn.net,' + NAME.IMAGE,
+    // Pixiv 图片、漫画及其静态资源。
+    'DOMAIN-SUFFIX,pixiv.net,' + NAME.IMAGE,
+    'DOMAIN-SUFFIX,pximg.net,' + NAME.IMAGE,
+    'DOMAIN-SUFFIX,pixivision.net,' + NAME.IMAGE,
+    'DOMAIN-SUFFIX,pixivsketch.net,' + NAME.IMAGE,
+    // Telegram 预览、网页与 CDN 媒体入口。
+    'DOMAIN-SUFFIX,telegram.org,' + NAME.IMAGE,
+    'DOMAIN-SUFFIX,t.me,' + NAME.IMAGE,
+    'DOMAIN-SUFFIX,telegram.me,' + NAME.IMAGE,
+    'DOMAIN-SUFFIX,telegra.ph,' + NAME.IMAGE,
+    'DOMAIN-SUFFIX,telesco.pe,' + NAME.IMAGE,
+    'DOMAIN-SUFFIX,telegram-cdn.org,' + NAME.IMAGE,
+    // X / Twitter 页面与图片视频 CDN。
+    'DOMAIN-SUFFIX,x.com,' + NAME.IMAGE,
+    'DOMAIN-SUFFIX,twitter.com,' + NAME.IMAGE,
+    'DOMAIN-SUFFIX,twimg.com,' + NAME.IMAGE,
     'DOMAIN-SUFFIX,google.com,' + NAME.GOOGLE,
     'DOMAIN-SUFFIX,googleapis.com,' + NAME.GOOGLE,
     'DOMAIN-SUFFIX,gstatic.com,' + NAME.GOOGLE,
