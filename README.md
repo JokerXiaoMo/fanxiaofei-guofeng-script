@@ -4,14 +4,14 @@
 
 <sub>展示角色：**番小绯**。原创角色与插画由仓库维护者提供，并授权用于「番小绯的国风脚本」项目展示。</sub>
 
-> **让代理策略像山海长卷一样清晰。** 「番小绯的国风脚本」的核心覆写为山海行：一份面向 FlClash 的 JavaScript 脚本，以国风动漫的可读命名呈现节点、服务与路由策略，同时保留明确、可验证的 Mihomo 分流逻辑。
+> **让代理策略像山海长卷一样清晰。** 「番小绯的国风脚本」的核心覆写为山海行：一份面向 FlClash、BettBox 等 Mihomo 客户端的 JavaScript 脚本，以国风动漫的可读命名呈现节点、服务与路由策略，同时保留明确、可验证的 Mihomo 分流逻辑。
 
 | 项目 | 当前实现 |
 |---|---|
-| 宿主客户端 | FlClash 的 JavaScript 覆写功能 |
+| 宿主客户端 | FlClash 与 BettBox 的 JavaScript 覆写功能 |
 | 覆写入口 | `function main(config)` |
 | 节点处理 | 动态分类中国香港/中国澳门、中国台湾、日本、新加坡、美国与其他节点 |
-| 策略组布局 | `🌺 代理选择` 固定置顶，随后是区域测速组与业务策略组（含影画媒体专组） |
+| 策略组布局 | `🌺 代理选择` 固定置顶，随后是区域测速组与业务策略组 |
 | 远程规则 | AdvertisingLite、ChinaMax、Global 三份 Clash Classical 规则 |
 | 测速方式 | `url-test`，每 600 秒复测，50 ms 容差，按需测速 |
 | DNS 能力 | 正式版启用 IPv4/IPv6 双栈 DNS、IPv6 Fake IP 范围与 DNS 上游回退 |
@@ -40,8 +40,7 @@
 | `⛵ 北美远航` | 美国节点测速池 | 美国、洛杉矶、西雅图、纽约、USA、US 等命名 | `url-test` 自动择优 |
 | `⛰️ 四海云游` | 未识别地区节点池 | 不能被上述地区规则识别的有效节点 | `url-test` 自动择优 |
 | `📜 灵枢智算` | AI 服务策略 | ChatGPT、OpenAI、Claude、Anthropic、Google Generative Language | 手动选择，优先提供美/新/日/全节点 |
-| `🎭 梨园影音` | 海外视频服务策略 | YouTube、Google Video、Netflix、Netflix Video | 手动选择，优先提供港/台/日/美/新/全节点 |
-| `🖼️ 影画速递` | 海外图片与社交媒体策略 | Instagram/Meta CDN、Pixiv/pximg、Telegram 网页与 CDN、X/Twitter/twimg | 手动选择，优先提供日/新/美/港/台/全节点；只在对应地区组实际存在时显示 |
+| `🎭 梨园影音` | 海外影音与社交媒体策略 | YouTube、Google Video、Netflix、Instagram/Meta CDN、Pixiv/pximg、Telegram 网页与 CDN、X/Twitter/twimg | 手动选择，优先提供港/台/日/美/新/全节点；统一承载图片、视频、动图与同域名媒体资源 |
 | `🔭 云台观星` | Google 服务策略 | Google、Google APIs、GStatic | 手动选择，优先提供美/日/新/全节点 |
 | `🧰 百工工坊` | 开发者服务策略 | GitHub、GitHub User Content、GitHub Assets、GitLab | 手动选择，优先提供美/日/新/全节点 |
 | `🗺️ 山海行旅` | 通用海外服务策略 | Global 规则集中命中的常用海外站点 | 手动选择，默认按区域组选择 |
@@ -58,13 +57,12 @@
 | 1 | 局域网与本地域名/IP | `DIRECT` |
 | 2 | AdvertisingLite | `🛡️ 清风拂尘` |
 | 3 | OpenAI、ChatGPT、Claude、Anthropic、Google AI | `📜 灵枢智算` |
-| 4 | YouTube 与 Netflix | `🎭 梨园影音` |
-| 5 | Instagram、Pixiv、Telegram、X 及其图片/媒体域名 | `🖼️ 影画速递` |
-| 6 | Google 域名与 API | `🔭 云台观星` |
-| 7 | GitHub、GitLab 等开发平台 | `🧰 百工工坊` |
-| 8 | ChinaMax 与中国大陆 IP | `🧧 神州直连` |
-| 9 | Global 规则集 | `🗺️ 山海行旅` |
-| 10 | 未命中流量 | `🌺 桃源归途` |
+| 4 | YouTube、Netflix、Instagram、Pixiv、Telegram、X 及其图片/媒体域名 | `🎭 梨园影音` |
+| 5 | Google 域名与 API | `🔭 云台观星` |
+| 6 | GitHub、GitLab 等开发平台 | `🧰 百工工坊` |
+| 7 | ChinaMax 与中国大陆 IP | `🧧 神州直连` |
+| 8 | Global 规则集 | `🗺️ 山海行旅` |
+| 9 | 未命中流量 | `🌺 桃源归途` |
 
 ## 节点测速与延迟表现
 
@@ -95,8 +93,7 @@ https://raw.githubusercontent.com/JokerXiaoMo/fanxiaofei-guofeng-script/main/Sha
 | 中国澳门识别 | 名称包含 `中国澳门` 或中国澳门地区编号的节点出现在 `🏮 香江灯影` |
 | 规则提供者 | 出现 `shanhai-ad`、`shanhai-cn`、`shanhai-global` 三项 |
 | AI 分流 | OpenAI/Claude 类服务命中 `📜 灵枢智算` |
-| 视频分流 | YouTube/Netflix 命中 `🎭 梨园影音` |
-| 图片媒体分流 | Instagram、Pixiv、Telegram、X 相关域名命中 `🖼️ 影画速递` |
+| 影音与社交媒体分流 | YouTube、Netflix、Instagram、Pixiv、Telegram、X 相关域名均命中 `🎭 梨园影音` |
 | 延迟测试 | `🏮 香江灯影` 内可看到中国香港/中国澳门节点的实际延迟 |
 
 ## 架构参考与开源致谢
