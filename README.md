@@ -14,6 +14,7 @@
 | 策略组布局 | `🌺 代理选择` 固定置顶，随后是区域测速组与业务策略组 |
 | 远程规则 | AdvertisingLite、ChinaMax、Global 三份 Clash Classical 规则 |
 | 测速方式 | `url-test`，每 600 秒复测，50 ms 容差，按需测速 |
+| DNS 能力 | 正式版启用 IPv4/IPv6 双栈 DNS、IPv6 Fake IP 范围与 DNS 上游回退 |
 | 适用场景 | 单订阅或已经聚合为 Mihomo 配置的订阅 |
 
 ## 为什么叫「山海行」
@@ -71,17 +72,17 @@
 
 ## 一键复制订阅链接
 
-在 FlClash 中进入「配置 → 覆写脚本」，创建脚本后点击编辑器右上角的下载箭头，选择「导入 URL」。下方是当前唯一推荐的**山海行自适应版**；它会根据订阅中实际生成的地区组动态构建业务策略候选。
+在 FlClash 中进入「配置 → 覆写脚本」，创建脚本后点击编辑器右上角的下载箭头，选择「导入 URL」。下方是当前唯一的**山海行自适应双栈 DNS 正式版**；它会根据订阅中实际生成的地区组动态构建业务策略候选，并提供 IPv4/IPv6 双栈 DNS 支持。
 
 > **复制提示：** GitHub 会为下方代码块提供内置的复制功能；在手机端请点击代码块后使用浏览器的“复制”操作。若代码块横向显示不完整，可点击下方的 Raw 链接打开完整地址后复制。
 
 ```text
-https://raw.githubusercontent.com/JokerXiaoMo/fanxiaofei-guofeng-script/main/ShanHaiXing-Adaptive.js
+https://raw.githubusercontent.com/JokerXiaoMo/fanxiaofei-guofeng-script/main/ShanHaiXing-Adaptive-DualStackDNS.js
 ```
 
-[打开完整 Raw 链接](https://raw.githubusercontent.com/JokerXiaoMo/fanxiaofei-guofeng-script/main/ShanHaiXing-Adaptive.js)
+[打开完整 Raw 链接](https://raw.githubusercontent.com/JokerXiaoMo/fanxiaofei-guofeng-script/main/ShanHaiXing-Adaptive-DualStackDNS.js)
 
-导入完成后，点击顶部的「未命名」并填写 `番小绯的国风脚本`，再点击保存。返回订阅卡片的「更多 → 覆写」，关联山海行脚本并刷新订阅。之后进入「代理」页，确认第一项为 `🌺 代理选择`，并检查 `🏮 香江灯影` 是否包含你的中国香港和中国澳门节点。
+导入完成后，点击顶部的「未命名」并填写 `番小绯的国风脚本`，再点击保存。返回订阅卡片的「更多 → 覆写」，关联山海行脚本并刷新订阅。之后进入「代理」页，确认第一项为 `🌺 代理选择`，并检查 `🏮 香江灯影` 是否包含你的中国香港和中国澳门节点。若需要截获应用直接发往 53 端口的 DNS 查询，请在 FlClash 的 TUN 页面手动启用 DNS 劫持；脚本不会擅自接管 TUN。
 
 ## 快速验证
 
