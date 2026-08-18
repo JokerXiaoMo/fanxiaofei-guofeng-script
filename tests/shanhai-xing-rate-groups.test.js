@@ -55,10 +55,10 @@ assert.equal(low.proxies.includes('DIRECT'), false, '低倍率节点组不可测
 const all = group(config, '☁️ 万象节点')
 assert.ok(all, '必须生成万象节点组')
 assert.equal(all.type, 'url-test', '万象节点必须持续比较延迟，而非串行回退')
-assert.equal(all.proxies[0], '🟢 低倍率节点', '万象节点必须将低倍率自动组置于首候选')
+assert.equal(all.proxies[0], '日本 东京 0.5x 省流', '万象节点必须先直接测速低倍率节点')
+assert.equal(all.proxies[1], '中国香港 0.3× 省流', '万象节点必须按原订阅顺序继续列出低倍率节点')
+assert.equal(all.proxies.includes('🟢 低倍率节点'), false, '万象节点不可嵌套低倍率策略组')
 assert.equal(all.proxies.includes('☁️ 万象节点'), false, '万象节点不得自我引用')
-assert.equal(all.proxies.includes('日本 东京 0.5x 省流'), false, '低倍率节点必须只经低倍率自动组参与万象测速')
-assert.equal(all.proxies.includes('中国香港 0.3× 省流'), false, '低倍率节点不可在万象节点中重复作为直连候选')
 
 assert.deepEqual([...high.proxies], [
   'US Los Angeles x2 高倍率',

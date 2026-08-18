@@ -34,6 +34,7 @@ assert.deepEqual([...defaults.dns['default-nameserver']], ['119.29.29.29', '180.
 assert.deepEqual([...defaults.dns['proxy-server-nameserver']], ['https://doh.pub/dns-query', 'https://dns.alidns.com/dns-query'])
 assert.deepEqual([...defaults.dns.nameserver], ['https://dns.google/dns-query', 'https://dns.cloudflare.com/dns-query'])
 assert.equal(defaults.dns['respect-rules'], true, '补齐代理域名服务器后必须允许 DNS 遵守规则')
+assert.equal(defaults.profile['store-selected'], false, '自动策略不得持久化旧的手动选中状态')
 
 const mediaGroup = defaults['proxy-groups'].find((group) => group.name === '🎭 梨园影音')
 assert.ok(mediaGroup, '必须生成梨园影音策略组')

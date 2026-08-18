@@ -3,7 +3,7 @@
 // 设计：完整订阅保留全部地区候选；缺少地区节点时仅引用实际生成的策略组。
 // 说明：这是 IPv4/IPv6 双栈 DNS 正式版；历史版本保留在 archive/ 目录。
 
-var VERSION = '1.2.8-adaptive-dualstack-dns-latency-aware-low-rate'
+var VERSION = '1.2.10-adaptive-dualstack-dns-autoselect-reset'
 var TEST_URL = 'https://www.gstatic.com/generate_204'
 var TEST_INTERVAL = 600
 var TEST_TOLERANCE = 50
@@ -185,10 +185,10 @@ function buildGroups(buckets) {
   var regions = activeRegionNames(buckets)
   // 总开关置顶，便于在 FlClash 代理页首项直接切换。
   var groups = [newSelect(NAME.MAIN, selectCandidates(regions, false))]
-  // 低倍率节点组在后面构建。万象节点将其作为首个候选，但仍持续测速所有其余节点。
-  // 这样低倍率节点高延迟或失效时，可立即切换到延迟更低的任意有效节点，而不是串行回退。
-  var allCandidates = []
-  if (buckets.LOW_RATE.length > 0) allCandidates.push(NAME.LOW_RATE)
+  // 万象节点只直接测速真实节点，不嵌套低倍率策略组。
+  // 真实内核验证表明，嵌套 url-test 只会跟随子组当前选择，无法把子组延迟与其他节点持续公平比较。
+  // 低倍率节点排在前面作为初始成本偏好；所有候选仍由同一个 url-test 按实际延迟持续择优。
+  var allCandidates = buckets.LOW_RATE.slice()
   for (var allIndex = 0; allIndex < buckets.ALL.length; allIndex += 1) {
     if (buckets.LOW_RATE.indexOf(buckets.ALL[allIndex]) === -1) allCandidates.push(buckets.ALL[allIndex])
   }
@@ -321,7 +321,9 @@ function applySafeDefaults(config) {
   config.dns['respect-rules'] = true
 
   if (!config.profile || typeof config.profile !== 'object' || Array.isArray(config.profile)) config.profile = {}
-  config.profile['store-selected'] = true
+  // Mihomo 会持久化包括 url-test 在内的手动选中状态；关闭缓存以避免旧的高延迟选择覆盖自动测速结果。
+  // 代价是手动选择组的选择不会跨刷新保存，换取默认策略始终按当前延迟自动择优。
+  config.profile['store-selected'] = false
 }
 
 function main(config) {

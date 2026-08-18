@@ -93,6 +93,9 @@ function validateGeneratedConfig(config, nodeNames) {
   const all = groups.find((group) => group.name === '☁️ 万象节点')
   assert.ok(all && all.type === 'url-test', '万象节点必须为持续延迟比较的自动策略组')
   assert.equal(all.proxies.includes('☁️ 万象节点'), false, '万象节点不得自我引用')
+  for (const candidate of all.proxies) {
+    assert.ok(nodeSet.has(candidate), '万象节点必须只直接测速真实节点：' + candidate)
+  }
 
   const media = groups.find((group) => group.name === '🎭 梨园影音')
   assert.ok(media && media.type === 'url-test', '梨园影音必须为自动测速策略组')
