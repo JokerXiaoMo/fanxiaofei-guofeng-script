@@ -10,8 +10,8 @@
 |---|---|
 | 宿主客户端 | FlClash 与 BettBox 的 JavaScript 覆写功能 |
 | 覆写入口 | `function main(config)` |
-| 节点处理 | 动态分类中国香港/中国澳门、中国台湾、日本、新加坡、美国与其他节点 |
-| 策略组布局 | `🌺 代理选择` 固定置顶，随后是区域测速组与自动/手动业务策略组 |
+| 节点处理 | 动态分类中国香港/中国澳门、中国台湾、日本、新加坡、美国、其他节点及明确高/低倍率节点 |
+| 策略组布局 | `🌺 代理选择` 固定置顶，随后是区域、倍率测速组与自动/手动业务策略组 |
 | 远程规则 | AdvertisingLite、ChinaMax、Global 三份 Clash Classical 规则 |
 | 测速方式 | `url-test`，每 600 秒复测，50 ms 容差，按需测速 |
 | DNS 能力 | 正式版启用 IPv4/IPv6 双栈 DNS、IPv6 Fake IP 范围与 DNS 上游回退 |
@@ -39,6 +39,8 @@
 | `🪷 南洋莲舟` | 新加坡节点测速池 | 新加坡、Singapore、SG/SGP 等命名 | `url-test` 自动择优 |
 | `⛵ 北美远航` | 美国节点测速池 | 美国、洛杉矶、西雅图、纽约、USA、US 等命名 | `url-test` 自动择优 |
 | `⛰️ 四海云游` | 未识别地区节点池 | 不能被上述地区规则识别的有效节点 | `url-test` 自动择优 |
+| `🧧 高倍率节点` | 高倍率节点自动测速池 | 名称中带明确倍率标记且数值 **≥ 2** 的有效节点，例如 `2x`、`x2`、`2倍`、`倍率: 2.5` | `url-test` 自动择优；同时保留在其原地区组，不改变业务分流 |
+| `🍃 低倍率节点` | 低倍率节点自动测速池 | 名称中带明确倍率标记且数值 **> 0 且 ≤ 0.5** 的有效节点，例如 `0.5x`、`x0.3`、`0.5倍` | `url-test` 自动择优；同时保留在其原地区组，不改变业务分流 |
 | `📜 灵枢智算` | AI 服务策略 | ChatGPT、OpenAI、Claude、Anthropic、Google Generative Language | 手动选择，优先提供美/新/日/全节点 |
 | `🎭 梨园影音` | 海外视频服务自动策略 | YouTube、Google Video、Netflix、Netflix Video | `url-test` 自动在中国香港、中国台湾、日本、美国、新加坡及全节点区域组间择优；无需用户手动切换 |
 | `🖼️ 影画速递` | 海外图片与社交媒体自动策略 | Instagram/Meta CDN、Pixiv/pximg、Telegram 网页与 CDN、X/Twitter/twimg | `url-test` 直接测试订阅内有效节点，自动选择适合图片、动图和视频媒体的出口；不与梨园影音重复接管域名 |
@@ -68,9 +70,11 @@
 
 ## 节点测速与延迟表现
 
-区域组采用 Mihomo 的 `url-test`。测试地址为 `https://www.gstatic.com/generate_204`，脚本设置 `interval: 600`、`tolerance: 50`、`lazy: true`。这意味着每个区域节点池会在实际需要时开始测试，并定期复测；延迟较优且可用的节点会成为自动选择的候选。`🎭 梨园影音` 会在已经生成的区域测速组之间自动择优，`🖼️ 影画速递` 则直接测试其覆盖的有效节点；二者均不要求客户手动切换。
+区域组采用 Mihomo 的 `url-test`。测试地址为 `https://www.gstatic.com/generate_204`，脚本设置 `interval: 600`、`tolerance: 50`、`lazy: true`。这意味着每个区域节点池会在实际需要时开始测试，并定期复测；延迟较优且可用的节点会成为自动选择的候选。`🎭 梨园影音` 会在已经生成的区域测速组之间自动择优，`🖼️ 影画速递` 则直接测试其覆盖的有效节点；二者均不要求客户手动切换。`🧧 高倍率节点` 与 `🍃 低倍率节点` 也会直接测速各自的节点集合，并且只在识别到对应节点时显示。
 
 > **请区分“测速机制可用”与“你的节点延迟”。** 本仓库已验证测试地址可返回 HTTP 204，也对脚本的 `url-test` 参数、节点分类与策略生成进行了夹具测试。但真实延迟仍取决于订阅节点、当地网络、运营商和设备；请以 FlClash 代理页中实际显示的节点延迟为准。
+>
+> **倍率识别边界：** 脚本只识别带明确倍率标记的数字，如 `0.3x`、`x2`、`2倍`、`倍率: 2.5`。普通编号、日期、端口，以及单独出现的“高倍率”“低倍”等文字不会触发倍率分组；信息行会在识别前排除。若一个名称同时写有高低两种倍率，优先归入高倍率组。
 
 ## 一键复制订阅链接
 
@@ -97,6 +101,8 @@ https://raw.githubusercontent.com/JokerXiaoMo/fanxiaofei-guofeng-script/main/Sha
 | AI 分流 | OpenAI/Claude 类服务命中 `📜 灵枢智算` |
 | 影音自动分流 | YouTube、Netflix 命中 `🎭 梨园影音`，且该组以 `url-test` 自动择优区域出口 |
 | 影画自动分流 | Instagram、Pixiv、Telegram、X 相关域名命中 `🖼️ 影画速递`，且该组以 `url-test` 自动测试有效节点 |
+| 倍率识别 | 含 `2x`、`x2`、`2倍` 的节点进入 `🧧 高倍率节点`；含 `0.5x`、`x0.3`、`0.5倍` 的节点进入 `🍃 低倍率节点` |
+| 倍率地区并列 | 已识别倍率节点仍同时位于其原中国香港/中国澳门、中国台湾、日本、新加坡、美国或其他地区组 |
 | 延迟测试 | `🏮 香江灯影` 内可看到中国香港/中国澳门节点的实际延迟 |
 
 ## 架构参考与开源致谢
@@ -110,6 +116,8 @@ https://raw.githubusercontent.com/JokerXiaoMo/fanxiaofei-guofeng-script/main/Sha
 | [ios_rule_script](https://github.com/blackmatrix7/ios_rule_script) | 运行时从公开 URL 请求 AdvertisingLite、ChinaMax、Global 三份 Classical 规则 | 不打包、不再分发上游规则文件；使用前请阅读上游 GPL-2.0 许可及项目声明。[2] |
 | [Smart-Config-Kit](https://github.com/IvanSolis1989/Smart-Config-Kit) | 参考“动态节点分类、区域测速组、业务策略组、规则提供者”的功能分层思路 | 未复制其代码或规则清单；GitHub 当前未显示许可证信息，故只作架构性致谢。[3] |
 | [Mihomo](https://github.com/MetaCubeX/mihomo) | 为 `proxy-groups`、`url-test`、`rule-providers` 等配置语义提供内核背景 | 不作为山海行的代码或规则直接来源。[4] |
+| [MyClash](https://github.com/AIsouler/MyClash) | 参考“倍率作为与地区正交的节点属性、非空才生成倍率组”的功能需求 | 仓库未声明许可证；山海行未复制其代码、正则或规则表，倍率解析为独立实现。[6] |
+| [YaNet](https://github.com/dahaha-365/YaNet) | 参考单次遍历分类、明确数值比较与非空测速组生成的设计方向 | 山海行未复制其实现；其仓库采用 BSD-3-Clause。[7] |
 
 完整核验记录参见 [`UPSTREAMS.md`](./UPSTREAMS.md)。
 
@@ -140,3 +148,5 @@ https://raw.githubusercontent.com/JokerXiaoMo/fanxiaofei-guofeng-script/main/Sha
 [3]: https://github.com/IvanSolis1989/Smart-Config-Kit "Smart-Config-Kit"
 [4]: https://github.com/MetaCubeX/mihomo "Mihomo"
 [5]: https://github.com/appshubcc/Bettbox "BettBox"
+[6]: https://github.com/AIsouler/MyClash "MyClash"
+[7]: https://github.com/dahaha-365/YaNet "YaNet"

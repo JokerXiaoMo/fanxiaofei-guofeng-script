@@ -3,7 +3,7 @@
 // 设计：完整订阅保留全部地区候选；缺少地区节点时仅引用实际生成的策略组。
 // 说明：这是 IPv4/IPv6 双栈 DNS 正式版；历史版本保留在 archive/ 目录。
 
-var VERSION = '1.2.4-adaptive-dualstack-dns-auto-media'
+var VERSION = '1.2.5-adaptive-dualstack-dns-rate-groups'
 var TEST_URL = 'https://www.gstatic.com/generate_204'
 var TEST_INTERVAL = 600
 var TEST_TOLERANCE = 50
@@ -25,6 +25,8 @@ var NAME = {
   SG: '🪷 南洋莲舟',
   US: '⛵ 北美远航',
   OTHER: '⛰️ 四海云游',
+  HIGH_RATE: '🧧 高倍率节点',
+  LOW_RATE: '🍃 低倍率节点',
   AI: '📜 灵枢智算',
   MEDIA: '🎭 梨园影音',
   IMAGE: '🖼️ 影画速递',
@@ -38,7 +40,7 @@ var NAME = {
 
 var RESERVED_GROUP_NAMES = [
   NAME.MAIN, NAME.ALL, NAME.HK, NAME.TW, NAME.JP, NAME.SG, NAME.US, NAME.OTHER,
-  NAME.AI, NAME.MEDIA, NAME.IMAGE, NAME.GOOGLE, NAME.DEV, NAME.GLOBAL,
+  NAME.HIGH_RATE, NAME.LOW_RATE, NAME.AI, NAME.MEDIA, NAME.IMAGE, NAME.GOOGLE, NAME.DEV, NAME.GLOBAL,
   NAME.CN, NAME.FINAL, NAME.AD
 ]
 
@@ -51,6 +53,10 @@ var REGIONS = [
 ]
 
 var INFO_NODE = /剩余|流量|到期|重置|官网|订阅|网址|套餐|邮箱|\b(?:total|used|expire|email|website|channel)\b/i
+
+// 只识别带明确倍率标记的数值，避免节点中的普通编号、端口或自然语言造成误判。
+var MULTIPLIER_SUFFIX = /(?:^|[^0-9.])(\d+(?:\.\d+)?)\s*(?:倍|[xX*×✕✖⨉])(?=$|[^A-Za-z0-9])/g
+var MULTIPLIER_PREFIX = /(?:倍率\s*[:：=]?\s*|[xX*×✕✖⨉]\s*)(\d+(?:\.\d+)?)(?=$|[^A-Za-z0-9])/g
 
 function log(message) {
   if (typeof console !== 'undefined' && console.log) console.log('[山海行自适应 ' + VERSION + '] ' + message)
@@ -105,8 +111,30 @@ function isReservedGroupName(name) {
   return RESERVED_GROUP_NAMES.indexOf(name) !== -1
 }
 
+function detectRateTier(nodeName) {
+  var patterns = [MULTIPLIER_SUFFIX, MULTIPLIER_PREFIX]
+  var hasHighRate = false
+  var hasLowRate = false
+
+  for (var i = 0; i < patterns.length; i += 1) {
+    patterns[i].lastIndex = 0
+    var match
+    while ((match = patterns[i].exec(nodeName)) !== null) {
+      var value = parseFloat(match[1])
+      if (!isFinite(value) || value <= 0) continue
+      if (value >= 2) hasHighRate = true
+      else if (value <= 0.5) hasLowRate = true
+    }
+  }
+
+  // 一个名称如同时含多个倍率，以高倍率优先，避免同一节点落入两个成本组。
+  if (hasHighRate) return 'HIGH_RATE'
+  if (hasLowRate) return 'LOW_RATE'
+  return null
+}
+
 function collectNodes(proxies) {
-  var buckets = { ALL: [], HK: [], TW: [], JP: [], SG: [], US: [], OTHER: [] }
+  var buckets = { ALL: [], HK: [], TW: [], JP: [], SG: [], US: [], OTHER: [], HIGH_RATE: [], LOW_RATE: [] }
   for (var i = 0; i < proxies.length; i += 1) {
     var proxy = proxies[i]
     if (!proxy || typeof proxy !== 'object' || !proxy.name) continue
@@ -119,6 +147,8 @@ function collectNodes(proxies) {
     }
     buckets.ALL.push(nodeName)
     buckets[detectRegion(nodeName)].push(nodeName)
+    var rateTier = detectRateTier(nodeName)
+    if (rateTier) buckets[rateTier].push(nodeName)
   }
   return buckets
 }
@@ -162,6 +192,10 @@ function buildGroups(buckets) {
     if (buckets[region.key].length > 0) groups.push(newUrlTest(region.name, buckets[region.key]))
   }
   if (buckets.OTHER.length > 0) groups.push(newUrlTest(NAME.OTHER, buckets.OTHER))
+
+  // 倍率是与地区正交的节点属性：命中节点会同时保留在原地区组和倍率组。
+  if (buckets.HIGH_RATE.length > 0) groups.push(newUrlTest(NAME.HIGH_RATE, buckets.HIGH_RATE))
+  if (buckets.LOW_RATE.length > 0) groups.push(newUrlTest(NAME.LOW_RATE, buckets.LOW_RATE))
 
   var aiCandidates = availableRegionNames(buckets, ['US', 'SG', 'JP', 'ALL'])
   // 影音服务嵌套既有区域测速组，再以 url-test 自动选择最佳区域出口。
