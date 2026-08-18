@@ -52,6 +52,12 @@ assert.equal(low.type, 'url-test', '低倍率节点组必须自动测速')
 assert.equal(high.proxies.includes('DIRECT'), false, '高倍率节点组不可测速 DIRECT')
 assert.equal(low.proxies.includes('DIRECT'), false, '低倍率节点组不可测速 DIRECT')
 
+const all = group(config, '☁️ 万象节点')
+assert.ok(all, '必须生成万象节点组')
+assert.equal(all.type, 'fallback', '万象节点必须使用可回退的低倍率优先策略')
+assert.equal(all.proxies[0], '🟢 低倍率节点', '万象节点必须先尝试低倍率自动组')
+assert.equal(all.proxies.includes('☁️ 万象节点'), false, '万象节点不得自我引用')
+
 assert.deepEqual([...high.proxies], [
   'US Los Angeles x2 高倍率',
   '新加坡 2倍 标准',
@@ -92,5 +98,9 @@ for (const falsePositive of [
 const noRate = run(['日本 东京 01', 'US Los Angeles 01'])
 assert.equal(Boolean(group(noRate, '🔴 高倍率节点')), false, '没有高倍率节点时不可生成空高倍率组')
 assert.equal(Boolean(group(noRate, '🟢 低倍率节点')), false, '没有低倍率节点时不可生成空低倍率组')
+const noRateAll = group(noRate, '☁️ 万象节点')
+assert.equal(noRateAll.type, 'fallback', '没有低倍率节点时万象节点仍必须自动回退')
+assert.equal(noRateAll.proxies.includes('🟢 低倍率节点'), false, '没有低倍率节点时万象节点不得引用不存在的低倍率组')
+assert.deepEqual([...noRateAll.proxies], ['日本 东京 01', 'US Los Angeles 01'], '没有低倍率节点时万象节点必须回退到全部有效节点')
 
 console.log('ShanHaiXing rate group tests passed')

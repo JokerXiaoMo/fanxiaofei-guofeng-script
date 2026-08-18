@@ -70,14 +70,14 @@ function validateGeneratedConfig(config, nodeNames) {
   const edges = new Map()
 
   for (const group of groups) {
-    assert.ok(['select', 'url-test'].includes(group.type), '策略组类型必须受支持：' + group.name)
+    assert.ok(['select', 'url-test', 'fallback'].includes(group.type), '策略组类型必须受支持：' + group.name)
     assert.ok(Array.isArray(group.proxies) && group.proxies.length > 0, '策略组候选不得为空：' + group.name)
     assert.equal(new Set(group.proxies).size, group.proxies.length, '策略组候选不得重复：' + group.name)
-    if (group.type === 'url-test') {
-      assert.ok(typeof group.url === 'string' && group.url.length > 0, 'url-test 必须有测速地址：' + group.name)
-      assert.ok(Number.isInteger(group.interval) && group.interval > 0, 'url-test 必须有正数测速间隔：' + group.name)
-      assert.equal(group.proxies.includes('DIRECT'), false, 'url-test 不得把 DIRECT 当作测速节点：' + group.name)
-      assert.equal(group.proxies.includes('REJECT'), false, 'url-test 不得把 REJECT 当作测速节点：' + group.name)
+    if (group.type === 'url-test' || group.type === 'fallback') {
+      assert.ok(typeof group.url === 'string' && group.url.length > 0, '自动策略组必须有测速地址：' + group.name)
+      assert.ok(Number.isInteger(group.interval) && group.interval > 0, '自动策略组必须有正数测速间隔：' + group.name)
+      assert.equal(group.proxies.includes('DIRECT'), false, '自动策略组不得把 DIRECT 当作测速候选：' + group.name)
+      assert.equal(group.proxies.includes('REJECT'), false, '自动策略组不得把 REJECT 当作测速候选：' + group.name)
     }
     const childGroups = group.proxies.filter((name) => groupNames.has(name))
     edges.set(group.name, childGroups)
@@ -89,6 +89,10 @@ function validateGeneratedConfig(config, nodeNames) {
     }
   }
   assert.equal(hasCycle(edges), false, '策略组引用不得形成循环')
+
+  const all = groups.find((group) => group.name === '☁️ 万象节点')
+  assert.ok(all && all.type === 'fallback', '万象节点必须为可回退的自动策略组')
+  assert.equal(all.proxies.includes('☁️ 万象节点'), false, '万象节点不得自我引用')
 
   const media = groups.find((group) => group.name === '🎭 梨园影音')
   assert.ok(media && media.type === 'url-test', '梨园影音必须为自动测速策略组')

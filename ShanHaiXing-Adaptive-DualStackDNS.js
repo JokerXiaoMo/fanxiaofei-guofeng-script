@@ -3,7 +3,7 @@
 // 设计：完整订阅保留全部地区候选；缺少地区节点时仅引用实际生成的策略组。
 // 说明：这是 IPv4/IPv6 双栈 DNS 正式版；历史版本保留在 archive/ 目录。
 
-var VERSION = '1.2.6-adaptive-dualstack-dns-rate-groups'
+var VERSION = '1.2.7-adaptive-dualstack-dns-low-rate-priority'
 var TEST_URL = 'https://www.gstatic.com/generate_204'
 var TEST_INTERVAL = 600
 var TEST_TOLERANCE = 50
@@ -100,6 +100,18 @@ function newSelect(name, proxies) {
   return { name: name, type: 'select', proxies: unique(proxies) }
 }
 
+// fallback 按候选顺序使用第一个健康出口：低倍率组健康时优先使用，失效才自动回退。
+function newFallback(name, proxies) {
+  return {
+    name: name,
+    type: 'fallback',
+    url: TEST_URL,
+    interval: TEST_INTERVAL,
+    lazy: true,
+    proxies: unique(proxies)
+  }
+}
+
 function detectRegion(nodeName) {
   for (var i = 0; i < REGIONS.length; i += 1) {
     if (REGIONS[i].pattern.test(nodeName)) return REGIONS[i].key
@@ -185,7 +197,10 @@ function buildGroups(buckets) {
   var regions = activeRegionNames(buckets)
   // 总开关置顶，便于在 FlClash 代理页首项直接切换。
   var groups = [newSelect(NAME.MAIN, selectCandidates(regions, false))]
-  groups.push(newUrlTest(NAME.ALL, buckets.ALL))
+  // 低倍率节点组在后面构建；Mihomo 会按依赖关系先解析它，再让万象节点优先使用其健康出口。
+  var allCandidates = buckets.ALL.slice()
+  if (buckets.LOW_RATE.length > 0) allCandidates.unshift(NAME.LOW_RATE)
+  groups.push(newFallback(NAME.ALL, allCandidates))
 
   for (var i = 0; i < REGIONS.length; i += 1) {
     var region = REGIONS[i]
