@@ -3,7 +3,7 @@
 // 设计：完整订阅保留全部地区候选；缺少地区节点时仅引用实际生成的策略组。
 // 说明：这是 IPv4/IPv6 双栈 DNS 正式版；历史版本保留在 archive/ 目录。
 
-var VERSION = '1.2.5-adaptive-dualstack-dns-rate-groups'
+var VERSION = '1.2.6-adaptive-dualstack-dns-rate-groups'
 var TEST_URL = 'https://www.gstatic.com/generate_204'
 var TEST_INTERVAL = 600
 var TEST_TOLERANCE = 50
@@ -25,8 +25,8 @@ var NAME = {
   SG: '🪷 南洋莲舟',
   US: '⛵ 北美远航',
   OTHER: '⛰️ 四海云游',
-  HIGH_RATE: '🧧 高倍率节点',
-  LOW_RATE: '🍃 低倍率节点',
+  HIGH_RATE: '🔴 高倍率节点',
+  LOW_RATE: '🟢 低倍率节点',
   AI: '📜 灵枢智算',
   MEDIA: '🎭 梨园影音',
   IMAGE: '🖼️ 影画速递',

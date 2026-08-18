@@ -42,8 +42,8 @@ const names = [
 ]
 
 const config = run(names)
-const high = group(config, '🧧 高倍率节点')
-const low = group(config, '🍃 低倍率节点')
+const high = group(config, '🔴 高倍率节点')
+const low = group(config, '🟢 低倍率节点')
 
 assert.ok(high, '存在高倍率节点时必须生成高倍率节点组')
 assert.ok(low, '存在低倍率节点时必须生成低倍率节点组')
@@ -90,7 +90,7 @@ for (const falsePositive of [
 }
 
 const noRate = run(['日本 东京 01', 'US Los Angeles 01'])
-assert.equal(Boolean(group(noRate, '🧧 高倍率节点')), false, '没有高倍率节点时不可生成空高倍率组')
-assert.equal(Boolean(group(noRate, '🍃 低倍率节点')), false, '没有低倍率节点时不可生成空低倍率组')
+assert.equal(Boolean(group(noRate, '🔴 高倍率节点')), false, '没有高倍率节点时不可生成空高倍率组')
+assert.equal(Boolean(group(noRate, '🟢 低倍率节点')), false, '没有低倍率节点时不可生成空低倍率组')
 
 console.log('ShanHaiXing rate group tests passed')
