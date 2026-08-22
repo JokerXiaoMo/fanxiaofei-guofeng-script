@@ -1,10 +1,9 @@
-// Mihomo 覆写脚本：山海行 · 自适应版
+// Mihomo 覆写脚本：番小绯·半纸砚花 V0.1
 // 适用：FlClash v0.8.85+ 与支持 main(config) 的 BettBox 等 Mihomo 客户端
 // 设计：完整订阅保留全部地区候选；缺少地区节点时仅引用实际生成的策略组。
-// 说明：这是 v0.2.2 策略选择持久化测试版；当前正式入口保持不变。
-// 修复：保留用户在“🌺 代理选择”中手动选择的地区或万象节点。
+// 正式版：保留总开关实际路由与选择保存，并以静态规则补齐常见私有目标直连；不新增远程规则下载。
 
-var VERSION = '0.2.2-selector-persistence-test'
+var VERSION = '番小绯·半纸砚花 V0.1'
 var TEST_URL = 'https://www.gstatic.com/generate_204'
 var TEST_INTERVAL = 600
 var TEST_TOLERANCE = 50
@@ -244,11 +243,22 @@ function installRules(config) {
   }
 
   var rules = [
+    // 常见私有域名与网络地址优先直连，避免 loopback、链路本地或局域网目标误进广告或代理规则。
+    'DOMAIN,localhost,DIRECT',
     'DOMAIN-SUFFIX,lan,DIRECT',
     'DOMAIN-SUFFIX,local,DIRECT',
+    'DOMAIN-SUFFIX,home.arpa,DIRECT',
     'IP-CIDR,10.0.0.0/8,DIRECT,no-resolve',
+    'IP-CIDR,100.64.0.0/10,DIRECT,no-resolve',
+    'IP-CIDR,127.0.0.0/8,DIRECT,no-resolve',
+    'IP-CIDR,169.254.0.0/16,DIRECT,no-resolve',
     'IP-CIDR,172.16.0.0/12,DIRECT,no-resolve',
     'IP-CIDR,192.168.0.0/16,DIRECT,no-resolve',
+    'IP-CIDR,224.0.0.0/4,DIRECT,no-resolve',
+    'IP-CIDR,240.0.0.0/4,DIRECT,no-resolve',
+    'IP-CIDR6,::1/128,DIRECT,no-resolve',
+    'IP-CIDR6,fc00::/7,DIRECT,no-resolve',
+    'IP-CIDR6,fe80::/10,DIRECT,no-resolve',
     'RULE-SET,shanhai-ad,' + NAME.AD,
     'DOMAIN-SUFFIX,openai.com,' + NAME.AI,
     'DOMAIN-SUFFIX,chatgpt.com,' + NAME.AI,
@@ -285,8 +295,9 @@ function installRules(config) {
     'DOMAIN-SUFFIX,gitlab.com,' + NAME.DEV,
     'RULE-SET,shanhai-cn,' + NAME.CN,
     'GEOIP,CN,' + NAME.CN + ',no-resolve',
-    'RULE-SET,shanhai-global,' + NAME.GLOBAL,
-    'MATCH,' + NAME.FINAL
+    // 总开关必须位于真实规则出口；否则 BettBox 虽能高亮地区卡片，通用流量仍走独立默认组。
+    'RULE-SET,shanhai-global,' + NAME.MAIN,
+    'MATCH,' + NAME.MAIN
   ]
   replaceArray(ensureArray(config, 'rules'), rules)
 }
